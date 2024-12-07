@@ -1,4 +1,4 @@
-My solutions to the Advent of Code 2023 puzzles.
+My solutions to the Advent of Code 2024 puzzles.
 
 Focus here is not on design, but on getting the right answer with reasonably readable code.
 
