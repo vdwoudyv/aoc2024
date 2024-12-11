@@ -1,6 +1,10 @@
 package aoc.util;
 
-public record Coordinate(int x, int y) {
+import java.util.Comparator;
+
+import static java.util.Comparator.comparing;
+
+public record Coordinate(int x, int y) implements Comparable<Coordinate> {
 
     public Coordinate translate(int diffX, int diffY) {
         return new Coordinate(x + diffX, y + diffY);
@@ -50,6 +54,15 @@ public record Coordinate(int x, int y) {
             return false;
         } else {
             return true;
+        }
+    }
+
+    @Override
+    public int compareTo(Coordinate o) {
+        if (x-o.x == 0) {
+            return y - o.y;
+        } else {
+            return x - o.x;
         }
     }
 }

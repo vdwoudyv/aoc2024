@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -104,6 +105,30 @@ public class AocTools {
             List<String> columns = tokenizer.apply(row);
             for (String column: columns) {
                 rowResult.add(generator.apply(column));
+            }
+            result.add(rowResult);
+        }
+        return result;
+    }
+
+    /**
+     * Parses the input as a list of lists of T. Each row is split into columns by the tokenizer, and each column is
+     * converted to a T by the generator
+     * @param input the input
+     * @param generator the function that converts a string to a T
+     * @param tokenizer the function that splits a string into columns
+     * @return a list of lists of T
+     * @param <T> the type of the result
+     */
+    public static <T> List<List<T>> parseAsIndexedArray(List<String> input,
+                                                 BiFunction<String, Coordinate, T> generator,
+                                                 Function<String, List<String>> tokenizer) {
+        List<List<T>> result = new ArrayList<>();
+        for (int row = 0; row < input.size(); row++) {
+            List<String> columns = tokenizer.apply(input.get(row));
+            List<T> rowResult = new ArrayList<>();
+            for (int column = 0; column < columns.size(); column++) {
+                rowResult.add(generator.apply(columns.get(column), new Coordinate(column, row)));
             }
             result.add(rowResult);
         }
