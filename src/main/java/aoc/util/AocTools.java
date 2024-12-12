@@ -135,6 +135,20 @@ public class AocTools {
         return result;
     }
 
+    public static <T extends Cell> CellWorld<T> parseWorld(List<String> input, CellCreator<T> creator) {
+        CellWorld<T> world = new CellWorld<T>();
+        for (int row = 0; row < input.size(); row++) {
+            String[] columns = input.get(row).split("");
+            for (int column = 0; column < columns.length; column++) {
+                Coordinate c = new Coordinate(column, row);
+                T cell = creator.create(columns[column], c, world);
+                world.addCell(c, cell);
+            }
+        }
+        world.init();
+        return world;
+    }
+
     /**
      * Specific version of the generic parseAsArray, where each row is a string and each character is a column.
      */
