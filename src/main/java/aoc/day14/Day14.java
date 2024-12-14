@@ -27,7 +27,7 @@ public class Day14 implements Day {
     }
 
     public boolean mustPrint() {
-        return true;
+        return false;
     }
 
 }

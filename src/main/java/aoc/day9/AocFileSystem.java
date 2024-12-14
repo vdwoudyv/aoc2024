@@ -1,153 +1,130 @@
 package aoc.day9;
 
-import aoc.util.Tuple;
-
-import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AocFileSystem {
 
-    private List<Cell> cells;
+    private final List<Cell> cells = new ArrayList<>();
 
-    public AocFileSystem(List<Integer> data) {
-        cells = new ArrayList<>();
-        int runningIndex = 0;
-        int nbNumbers = 0;
-        for (int i =0; i < data.size(); i++) {
-            if (i%2 == 0) {
-                // Number
-                if (data.get(i) != 0) {
-                    cells.add(new Cell(nbNumbers, data.get(i), true, runningIndex));
-                }
-                nbNumbers++;
+
+    public AocFileSystem(String input) {
+        String[] parts = input.split("");
+        for (int i = 0; i<  parts.length;i++) {
+            int length = Integer.parseInt(parts[i]);
+            if (i % 2 == 1) {
+                cells.add(new Space(length));
             } else {
-                if (data.get(i) != 0) {
-                    cells.add(new Cell(-1, data.get(i), false, runningIndex));
-                }
-            }
-            runningIndex = runningIndex + data.get(i);
-        }
-    }
-
-    public void compactFragmenting() {
-        boolean changed;
-        do {
-            changed = compactStep();
-        } while (changed);
-    }
-
-    public void compactWholeBlocks() {
-        cleanup();
-        reindex();
-        List<Cell> toAttemptCompact = new ArrayList<>(cells.stream().filter(Cell::isNumber).toList());
-        for (int i = toAttemptCompact.size() -1; i >=0; i--) {
-            compactBlock(toAttemptCompact.get(i));
-            reindex();
-          }
-    }
-
-
-    public void cleanup() {
-        int index = 0;
-        while (index < cells.size()) {
-            Cell current = cells.get(index);
-            if (!current.isNumber() && current.getLength() == 0) {
-                cells.remove(index);
-            } else {
-                if (index < cells.size() - 1) {
-                    Cell next = cells.get(index+1);
-                    if ((!current.isNumber()) && (!next.isNumber())) {
-                        next.increaseLength(current);
-                        cells.remove(index);
-                    } else {
-                        index++;
-                    }
-                } else {
-                    index++;
-                }
+                cells.add(new NumberCell(i/2, length));
             }
         }
     }
 
-    private void compactBlock(Cell cell) {
-        int blockToCompact = cells.indexOf(cell);
-        int firstSpace = findFirstSpace(cell.getLength());
-        if (firstSpace != -1 && firstSpace < cell.getBeginIndex()) {
-            Cell space = cells.get(firstSpace);
-            cells.add(firstSpace, cell);
-            space.reduceLength(cell.getLength());
-            replaceWithSpace(cells, blockToCompact+1);
-            if (!cells.get(cells.size() - 1).isNumber()) {
+    public boolean singleCompactStep() {
+        // Remove any free space at end of cells.
+        while (cells.get(cells.size()-1) instanceof Space) {
+            cells.remove(cells.size()-1);
+        }
+        NumberCell last = (NumberCell) cells.get(cells.size()-1);
+        Optional<Space> firstSpace = getFirstSpace();
+        if (firstSpace.isPresent()) {
+            Space space = firstSpace.get();
+            if (space.getLength() >= last.getLength()) {
+                space.reduceLength(last.getLength());
+                swap(space, last, space);
+                cells.remove(cells.size()-1);
+            } else {
+                NumberCell toReplace = new NumberCell(last.getValue(), space.getLength());
+                last.reduceLength(space.getLength());
+                swap(space, toReplace);
+            }
+            if (last.getLength() == 0) {
                 cells.remove(cells.size()-1);
             }
-        }
-    }
-
-    private void replaceWithSpace(List<Cell> cells, int blockToCompact) {
-        Cell toReplace = cells.get(blockToCompact);
-        Cell space = new Cell(-1, toReplace.getLength(), false, toReplace.getBeginIndex());
-        cells.remove(blockToCompact);
-        if (blockToCompact < cells.size()) { // no use adding space at the end.
-            cells.add(blockToCompact, space);
-        }
-    }
-
-
-    public long computeHash() {
-        reindex();
-        return cells.stream().mapToLong(Cell::checksum).sum();
-    }
-
-    private void reindex() {
-        int runningIndex = 0;
-        for (Cell c: cells) {
-            c.setBeginIndex(runningIndex);
-            runningIndex += c.getLength();
-        }
-    }
-
-    // true if something could be compacted, false otherwise.
-    public boolean compactStep() {
-        Cell lastCell = cells.get(cells.size()-1);
-        if (! lastCell.isNumber()) {
-            cells.remove(cells.size()-1);
+            while (cells.get(cells.size()-1) instanceof Space) {
+                cells.remove(cells.size()-1);
+            }
             return true;
         } else {
-            int index = findFirstSpace(0);
-            if (index == -1) {
-                return false;
-            }
-            else {
-                Cell space = cells.get(index);
-                if (space.getLength() >= lastCell.getLength()) {
-                    cells.add(index, lastCell);
-                    cells.remove(cells.size()-1);
-                    space.reduceLength(lastCell.getLength());
-                } else {
-                    space.fill(lastCell.getValue());
-                    lastCell.reduceLength(space.getLength());
-                    if (space.getLength() == 0) {
-                        cells.remove(space);
-                    }
-                }
-                return true;
+            return false;
+        }
+    }
+
+    public void compact() {
+        boolean changed = true;
+        while (changed) {
+            changed = singleCompactStep();
+        }
+    }
+
+
+    public void compactFullFiles() {
+        for (int i = cells.size()-1; i>=0; i--) {
+            if (cells.get(i) instanceof NumberCell numberCell) {
+                moveFullCell(numberCell, i);
             }
         }
     }
 
-    public int findFirstSpace(int minSize) {
-        for (int i = 0; i < cells.size(); i++) {
-            if ((!cells.get(i).isNumber()) && (cells.get(i).getLength() >= minSize)) {
-                return i;
+    public boolean moveFullCell(NumberCell cell, int maxSpaceIndex) {
+        int originalIndex = cells.indexOf(cell);
+        for (int i =0; i<maxSpaceIndex; i++) {
+            if (cells.get(i) instanceof Space space) {
+                if (space.getLength()>= cell.getLength()) {
+                    space.reduceLength(cell.getLength());
+                    if (space.getLength() >0) {
+                        swap(space, cell, space);
+                        cells.remove(originalIndex+1);
+                        cells.add(originalIndex+1, new Space(cell.getLength()));
+                    } else {
+                        swap(space, cell);
+                        cells.remove(originalIndex);
+                        cells.add(originalIndex, new Space(cell.getLength()));
+                    }
+                    return true;
+                }
             }
         }
-        return -1;
+        return false;
+    }
+
+    public long checksum() {
+        int index = 0;
+        long total = 0L;
+        for (Cell c: cells) {
+            total += c.checksum(index);
+            index += c.getLength();
+        }
+        return total;
+    }
+
+    private Optional<Space> getFirstSpace() {
+        return cells.stream().filter(c -> c instanceof Space).map(c -> (Space) c).findFirst();
     }
 
     public String toString() {
-        return cells.stream().map(Cell::toString).collect(Collectors.joining(""));
+        return cells.stream().map(Object::toString).collect(Collectors.joining());
+    }
+
+
+    /**
+     * Replaces a cell by another cell
+     */
+    public void swap(Cell in, Cell out) {
+        int index = cells.indexOf(in);
+        cells.remove(index);
+        cells.add(index, out);
+    }
+
+    /**
+     * Replaces given cell by the sequence of two cells.
+     */
+    public void swap(Cell in, Cell first, Cell second) {
+        int index = cells.indexOf(in);
+        cells.remove(index);
+        cells.add(index, second);
+        cells.add(index, first);
     }
 }

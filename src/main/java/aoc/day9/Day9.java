@@ -3,36 +3,23 @@ package aoc.day9;
 import aoc.Day;
 import aoc.util.AocTools;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class Day9 implements Day {
 
     public String runPartOne(boolean testInput) {
-/*
-        AocFileSystem data = new AocFileSystem(AocTools.parseAsArray(
-                AocTools.read(false, this),
-                Integer::parseInt,
-                s -> Arrays.stream(s.split("")).toList()).get(0));
-        data.compactFragmenting();
-        return "" + data.computeHash();
-        */
-
-        return "";
+        AocFileSystem aocFileSystem = new AocFileSystem(AocTools.read(false, this).get(0));
+        aocFileSystem.compact();
+        return "" + aocFileSystem.checksum();
     }
 
     @Override
     public String runPartTwo(boolean testInput) {
-        AocFileSystem data = new AocFileSystem(AocTools.parseAsArray(
-                AocTools.read(false, this),
-                Integer::parseInt,
-                s -> Arrays.stream(s.split("")).toList()).get(0));
-        data.compactWholeBlocks();
-        return "" + data.computeHash();
+        AocFileSystem aocFileSystem = new AocFileSystem(AocTools.read(false, this).get(0));
+        aocFileSystem.compactFullFiles();
+        return "" + aocFileSystem.checksum();
     }
 
     public boolean mustPrint() {
-        return false;
+        return true;
     }
 
 }
