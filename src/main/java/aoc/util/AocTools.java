@@ -136,13 +136,18 @@ public class AocTools {
     }
 
     public static <T extends Cell> CellWorld<T> parseWorld(List<String> input, CellCreator<T> creator) {
-        CellWorld<T> world = new CellWorld<T>();
+        return parseWorld(input, creator, new CellWorld<>());
+    }
+
+    public static <T extends Cell> CellWorld<T> parseWorld(List<String> input, CellCreator<T> creator, CellWorld<T> world) {
         for (int row = 0; row < input.size(); row++) {
             String[] columns = input.get(row).split("");
             for (int column = 0; column < columns.length; column++) {
                 Coordinate c = new Coordinate(column, row);
                 T cell = creator.create(columns[column], c, world);
-                world.addCell(c, cell);
+                if (cell != null) {
+                    world.addCell(c, cell);
+                }
             }
         }
         world.init();

@@ -3,12 +3,11 @@ package aoc.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class CellWorld<T extends Cell> {
 
-    private final HashMap<Coordinate, T> cellMap;
+    protected final HashMap<Coordinate, T> cellMap;
 
     public CellWorld() {
         this.cellMap = new HashMap<>();
@@ -28,6 +27,14 @@ public class CellWorld<T extends Cell> {
 
     public List<T> getCells() {
         return new ArrayList<>(cellMap.values().stream().sorted().toList());
+    }
+
+    public int getWidth() {
+        return cellMap.values().stream().mapToInt(c-> c.getCoordinate().x()).max().orElse(-1)+1;
+    }
+
+    public int getHeight() {
+        return cellMap.values().stream().mapToInt(c-> c.getCoordinate().y()).max().orElse(-1)+1;
     }
 
     public void printOut(Function<T, String> f) {

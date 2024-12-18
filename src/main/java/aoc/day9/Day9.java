@@ -19,7 +19,7 @@ public class Day9 implements Day {
     }
 
     public boolean mustPrint() {
-        return true;
+        return false;
     }
 
 }

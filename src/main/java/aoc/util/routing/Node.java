@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public class Node {
 
 
-    private long bestDistanceToOrigin = 1000000;
+    private long bestDistanceToOrigin = Long.MAX_VALUE;
     private List<Edge> outgoing = new ArrayList<>();
     private List<Edge> incoming = new ArrayList<>();
     protected String name;
@@ -77,7 +77,7 @@ public class Node {
     }
 
     public void reset() {
-        bestDistanceToOrigin = 1000000;
+        bestDistanceToOrigin = Long.MAX_VALUE;
     }
 
     @Override
@@ -87,5 +87,9 @@ public class Node {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isReachable() {
+        return bestDistanceToOrigin != Long.MAX_VALUE;
     }
 }

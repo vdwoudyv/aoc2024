@@ -55,6 +55,11 @@ public record Coordinate(int x, int y) implements Comparable<Coordinate> {
         }
     }
 
+    public static Coordinate fromString(String s) {
+        String[] parts = s.split(",");
+        return new Coordinate(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
+    }
+
     @Override
     public int compareTo(Coordinate o) {
         if (y-o.y == 0) {

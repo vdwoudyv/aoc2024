@@ -2,7 +2,7 @@ package aoc.util;
 
 public abstract class Cell implements Comparable<Cell> {
 
-    private final Coordinate c;
+    protected Coordinate c;
     private final String content;
     private final CellWorld world;
 
