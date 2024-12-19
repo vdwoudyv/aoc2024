@@ -1,50 +1,51 @@
 package aoc.day17;
 
+import java.math.BigInteger;
 import java.util.List;
 
 public class Register {
 
-    private int a;
-    private int b;
-    private int c;
+    private BigInteger a;
+    private BigInteger b;
+    private BigInteger c;
 
-    public Register(int a, int b, int c) {
+    public Register(BigInteger a, BigInteger b, BigInteger c) {
         this.a = a;
         this.b = b;
         this.c = c;
     }
 
     public Register(List<String> strings) {
-        a = Integer.parseInt(strings.get(0).substring(11).trim());
-        b = Integer.parseInt(strings.get(1).substring(11).trim());
-        c = Integer.parseInt(strings.get(2).substring(11).trim());
+        a = new BigInteger(strings.get(0).substring(11).trim());
+        b = new BigInteger(strings.get(1).substring(11).trim());
+        c = new BigInteger(strings.get(2).substring(11).trim());
     }
 
-    public int getA() {
+    public BigInteger getA() {
         return a;
     }
 
-    public void setA(int a) {
+    public void setA(BigInteger a) {
         this.a = a;
     }
 
-    public int getB() {
+    public BigInteger getB() {
         return b;
     }
 
-    public void setB(int b) {
+    public void setB(BigInteger b) {
         this.b = b;
     }
 
-    public int getC() {
+    public BigInteger getC() {
         return c;
     }
 
-    public void setC(int c) {
+    public void setC(BigInteger c) {
         this.c = c;
     }
 
-    public void resetTo(int a, int b, int c) {
+    public void resetTo(BigInteger a, BigInteger b, BigInteger c) {
         this.a = a;
         this.b = b;
         this.c = c;

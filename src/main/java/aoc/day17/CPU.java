@@ -1,10 +1,14 @@
 package aoc.day17;
 
+import java.math.BigInteger;
+
 public class CPU {
 
     private InputReader reader;
     private OutputLogger logger;
     private Register register;
+    public static final BigInteger THREE = new BigInteger("3");
+    public static final BigInteger EIGHT = new BigInteger("8");
 
     public CPU(InputReader reader, OutputLogger logger, Register register) {
         this.reader = reader;
@@ -22,31 +26,18 @@ public class CPU {
         }
     }
 
-    public Integer runTilEquivalent() {
-        int valueA = 2000000000;
-        while (true) {
-            register.resetTo(valueA, 0, 0);
-            reader.reset();
-            logger.reset();
-            boolean stillOk = true;
-            try {
-                while (stillOk) {
-                    stillOk = execute(reader.read());
-                }
-            } catch (NoInputException nie) {
-                if (logger.valid()) {
-                    return valueA;
-                }
-            } catch (Exception e) {
+    public void runOnce() {
+        try {
+            execute(reader.read());
+            while (!reader.atBegin()) {
+                execute(reader.read());
             }
-            valueA++;
-            if (valueA % 100000000 == 0) {
-                System.out.print(".");
-            }
+        } catch(NoInputException nie) {
+            // done
         }
     }
 
-    public boolean execute(Integer operation) throws NoInputException {
+    public void execute(Integer operation) throws NoInputException {
         switch (operation) {
             case 0:
                 adv();
@@ -64,7 +55,8 @@ public class CPU {
                 bxc();
                 break;
             case 5:
-                return out();
+                out();
+                break;
             case 6:
                 bdv();
                 break;
@@ -74,61 +66,60 @@ public class CPU {
             default:
                 throw new IllegalArgumentException("Unknown operation");
         }
-        return true;
     }
 
     private void adv() throws NoInputException {
-        int numerator = register.getA();
-        int divisor = (int) Math.pow(2, readComboOperand());
-        register.setA(numerator / divisor);
+        BigInteger numerator = register.getA();
+        BigInteger divisor = BigInteger.TWO.pow(readComboOperand().intValue());
+        register.setA(numerator.divide(divisor));
     }
 
     private void bxl() throws NoInputException {
-        register.setB(readLiteral() ^ register.getB());
+        register.setB(new BigInteger("" + readLiteral()).xor(register.getB()));
     }
 
     private void bst() throws NoInputException {
-        register.setB(readComboOperand() % 8);
+        register.setB(readComboOperand().mod(EIGHT));
     }
 
     private void jnz() throws NoInputException {
-        if (register.getA() != 0) {
+        if (! register.getA().equals(BigInteger.ZERO)) {
             reader.setInstructionPointer(readLiteral());
         }
     }
 
     private void bxc() throws NoInputException {
         readLiteral();
-        register.setB(register.getB() ^ register.getC());
+        register.setB(register.getB().xor(register.getC()));
     }
 
-    private boolean out() throws NoInputException {
-        return logger.log(readComboOperand() % 8);
+    private void out() throws NoInputException {
+        logger.log(readComboOperand().mod(EIGHT));
     }
 
     private void bdv() throws NoInputException {
-        int numerator = register.getA();
-        int divisor = (int) Math.pow(2, readComboOperand());
-        register.setB(numerator / divisor);
+        BigInteger numerator = register.getA();
+        BigInteger divisor = BigInteger.TWO.pow(readComboOperand().intValue());
+        register.setB(numerator.divide(divisor));
     }
 
     private void cdv() throws NoInputException {
-        int numerator = register.getA();
-        int divisor = (int) Math.pow(2, readComboOperand());
-        register.setC(numerator / divisor);
+        BigInteger numerator = register.getA();
+        BigInteger divisor = BigInteger.TWO.pow(readComboOperand().intValue());
+        register.setC(numerator.divide(divisor));
     }
 
     private Integer readLiteral() throws NoInputException {
         return reader.read();
     }
 
-    private Integer readComboOperand() throws NoInputException {
+    private BigInteger readComboOperand() throws NoInputException {
         int literal = reader.read();
         return switch (literal) {
-            case 0 -> 0;
-            case 1 -> 1;
-            case 2 -> 2;
-            case 3 -> 3;
+            case 0 -> BigInteger.ZERO;
+            case 1 -> BigInteger.ONE;
+            case 2 -> BigInteger.TWO;
+            case 3 -> THREE;
             case 4 -> register.getA();
             case 5 -> register.getB();
             case 6 -> register.getC();

@@ -1,26 +1,21 @@
 package aoc.day17;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class OutputLogger {
 
-    private List<Integer> output;
+    private List<BigInteger> output;
 
-    private List<Integer> expectedResult;
-    private boolean allwaysPass;
 
-    public OutputLogger(InputReader reader, boolean shouldVerify) {
-        expectedResult = reader.getAll();
+    public OutputLogger() {
         output = new ArrayList<>();
-        allwaysPass = ! shouldVerify;
     }
 
-    public boolean log(Integer outputNumber) {
+    public void log(BigInteger outputNumber) {
         output.add(outputNumber);
-        boolean verified = output.size() <= expectedResult.size() && outputNumber.equals(expectedResult.get(output.size()-1));
-        return allwaysPass || verified;
     }
 
     public String getOutput() {
@@ -31,16 +26,11 @@ public class OutputLogger {
         output.clear();;
     }
 
-    public boolean valid() {
-        boolean sameLength = expectedResult.size() == output.size();
-        if (sameLength) {
-            for (int i = 0; i < expectedResult.size(); i++) {
-                if (!output.get(i).equals(expectedResult.get(i))) {
-                    return false;
-                }
-            }
-            return true;
+    public BigInteger lastLogged() {
+        if (! output.isEmpty()) {
+            return output.get(output.size() - 1);
+        } else {
+            return null;
         }
-        return false;
     }
 }

@@ -36,4 +36,8 @@ public class InputReader {
     public List<Integer> getAll() {
         return input;
     }
+
+    public boolean atBegin() {
+        return instructionPointer == 0;
+    }
 }
