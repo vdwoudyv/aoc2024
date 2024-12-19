@@ -37,7 +37,7 @@ public class Day18 implements Day {
     }
 
     public boolean mustPrint() {
-        return true;
+        return false;
     }
 
 }
