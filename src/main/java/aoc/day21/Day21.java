@@ -90,6 +90,6 @@ public class Day21 implements Day {
     }
 
     public boolean mustPrint() {
-        return true;
+        return false;
     }
 }
