@@ -30,7 +30,7 @@ public class Day22 implements Day {
     }
 
     public boolean mustPrint() {
-        return true;
+        return false;
     }
 
     public long getMaxBananas(List<Map<String, Integer>> sequenceMaps) {

@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -223,4 +220,20 @@ public class AocTools {
         }
         return response;
     }
+
+    public static <T> Set<T> intersect(Collection<Set<T>> sets) {
+        Set<T> response = new HashSet<>();
+        Optional<Set<T>> anyElement = sets.stream().findFirst();
+        if (anyElement.isEmpty()) {
+            return new HashSet<>();
+        } else {
+            for (T element: anyElement.get()) {
+                if (sets.stream().allMatch(s -> s.contains(element))) {
+                    response.add(element);
+                }
+            }
+        }
+        return response;
+    }
+
 }
